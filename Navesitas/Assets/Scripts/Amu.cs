@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class Amu : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision coll)
-    {
-        Destroy(this.gameObject);
-    }
 
     void Update()
     {

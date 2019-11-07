@@ -6,7 +6,10 @@ public class MovPersonaje : MonoBehaviour
 {
 
     int velMov = 0;
-    public GameObject amu;
+    int sangre = 100;
+    int vidas = 3;
+    public GameObject amuPre;
+    GameObject amuIn;
     void Update()
     {
         if (Input.GetKey(KeyCode.A))
@@ -71,11 +74,36 @@ public class MovPersonaje : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            amu = Instantiate(amu, gameObject.transform);
-            amu.transform.position = transform.position;
-            amu.transform.localScale = new Vector3(1, 1, 1);
-            amu.transform.parent = null;
-            amu.name = "amu";
+            amuIn = Instantiate(amuPre, gameObject.transform);
+            amuIn.transform.position = transform.position;
+            amuIn.transform.eulerAngles = new Vector3(90, 0, 0);
+            amuIn.transform.localScale = new Vector3(1, 1, 1);
+            amuIn.transform.parent = null;
+            amuIn.name = "amu";
+            Destroy(amuIn, 2);
+        }
+    }
+
+    private void OnCollisionEnter(Collision coll)
+    {
+        if (coll.gameObject.GetComponent<Enemigo0>() || coll.gameObject.GetComponent<Enemigo1>() || coll.gameObject.GetComponent<Enemigo2>())
+        {
+            Destroy(gameObject);
+            Destroy(coll.gameObject);
+        }
+        else if (coll.gameObject.GetComponent<AmuEnemy>())
+        {
+            sangre -= 5;
+            Destroy(coll.gameObject);
+            if (sangre <= 0)
+            {
+                vidas -= 1;
+                transform.position = new Vector3(0, 8, -6);
+                if (vidas <= 0)
+                {
+                    Destroy(gameObject);
+                }
+            }
         }
     }
 }

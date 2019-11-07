@@ -9,11 +9,14 @@ public class Enemigo0 : MonoBehaviour
     int cambiaMov = 0;
     int sangre = 100;
     int vida = 4;
+    public GameObject amu;
+    GameObject amuIn;
 
     void Start()
     {
         cambiaMov = Random.Range(0, 2);
         Invoke("LlamaCorru", 1.6f);
+        InvokeRepeating("Disparo", 1, 0.6f);
     }
 
     void LlamaCorru()
@@ -61,7 +64,7 @@ public class Enemigo0 : MonoBehaviour
     {
         if (coll.transform.name == "amu")
         {
-            //Destroy(coll.gameObject);
+            Destroy(coll.gameObject);
             sangre -= 15;
             if (sangre <= 0)
             {
@@ -83,5 +86,16 @@ public class Enemigo0 : MonoBehaviour
 
             }
         }
+    }
+
+    void Disparo()
+    {
+        amuIn = Instantiate(amu, gameObject.transform);
+        amuIn.transform.position = transform.position;
+        amuIn.transform.localScale = new Vector3(1, 1, 1);
+        amuIn.transform.localPosition = new Vector3(16, 0, -1);
+        amuIn.transform.eulerAngles = new Vector3(90, 0, 0);
+        amuIn.transform.parent = null;
+        Destroy(amuIn, 1.5f);
     }
 }
