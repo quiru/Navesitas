@@ -8,7 +8,7 @@ public class Enemigo0 : MonoBehaviour
     int movHoriz = 4;
     int cambiaMov = 0;
     int sangre = 100;
-    int vida = 4;
+    int vida = 5;
     public GameObject amu;
     GameObject amuIn;
 
@@ -65,7 +65,7 @@ public class Enemigo0 : MonoBehaviour
         if (coll.transform.name == "amu")
         {
             Destroy(coll.gameObject);
-            sangre -= 15;
+            sangre -= 10;
             if (sangre <= 0)
             {
                 vida -= 1;

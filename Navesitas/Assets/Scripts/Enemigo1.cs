@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemigo1 : MonoBehaviour
 {
     int sangre = 100;
-    int vida = 4;
+    int vida = 6;
     public GameObject amu;
     GameObject amuIn;
 
@@ -35,7 +35,7 @@ public class Enemigo1 : MonoBehaviour
         if (coll.transform.name == "amu")
         {
             Destroy(coll.gameObject);
-            sangre -= 15;
+            sangre -= 10;
             if (sangre <= 0)
             {
                 vida -= 1;

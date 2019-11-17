@@ -6,13 +6,13 @@ public class Enemigo2 : MonoBehaviour
 {
     int cambiaDir = 2;
     int sangre = 100;
-    int vida = 3;
+    int vida = 4;
     public GameObject amu;
     GameObject amuIn;
 
     void Start()
     {
-        Invoke("CallCorru", 13);
+        Invoke("CallCorru", 55);
         InvokeRepeating("Disparo", 5, 0.5f);
     }
 
@@ -20,7 +20,7 @@ public class Enemigo2 : MonoBehaviour
     void Update()
     {
         int tmp =(int) Time.timeSinceLevelLoad;
-        if (tmp >= 10)
+        if (tmp >= 50)
         {
             transform.position += new Vector3(cambiaDir * Time.deltaTime, 0, 0);
             if (transform.position.x >= 10)
@@ -42,7 +42,7 @@ public class Enemigo2 : MonoBehaviour
         if (coll.transform.name == "amu")
         {
             Destroy(coll.gameObject);
-            sangre -= 10;
+            sangre -= 5;
             if (sangre <= 0)
             {
                 vida -= 1;
