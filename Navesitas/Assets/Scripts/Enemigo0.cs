@@ -11,12 +11,17 @@ public class Enemigo0 : MonoBehaviour
     int vida = 5;
     public GameObject amu;
     GameObject amuIn;
+    public AudioClip sonExplosion;
+    public ParticleSystem explo;
+    AudioSource reprod;
 
     void Start()
     {
         cambiaMov = Random.Range(0, 2);
         Invoke("LlamaCorru", 1.6f);
         InvokeRepeating("Disparo", 1, 0.6f);
+        gameObject.AddComponent<AudioSource>();
+        reprod = GetComponent<AudioSource>();
     }
 
     void LlamaCorru()
@@ -71,7 +76,10 @@ public class Enemigo0 : MonoBehaviour
                 vida -= 1;
                 if (vida <= 0)
                 {
-                    Destroy(gameObject);
+                    Destroy(gameObject, 0.7f);
+                    reprod.clip = sonExplosion;
+                    reprod.Play();
+                    explo.Play();
                 }
                 else
                 {
@@ -80,6 +88,7 @@ public class Enemigo0 : MonoBehaviour
                     movVert = -4;
                     sangre = 100;
                     Invoke("LlamaCorru", 1.6f);
+                    explo.Stop();
                 }
                 
 

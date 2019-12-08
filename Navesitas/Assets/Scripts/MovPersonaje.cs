@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class MovPersonaje : MonoBehaviour
 {
@@ -13,8 +15,10 @@ public class MovPersonaje : MonoBehaviour
     public GameObject amuPre;
     GameObject amuIn;
     public ParticleSystem tiro;
+    public ParticleSystem explosion;
     AudioSource Reproductor;
     public AudioClip sonDisparo;
+    public AudioClip sonExplosion;
     GameObject mensLose;
     public Button salir;
     public Button reset;
@@ -22,6 +26,8 @@ public class MovPersonaje : MonoBehaviour
     public GameObject tranparente;
     public Material matTrans;
     bool vidaMenos;
+    public GameObject bombPre;
+    GameObject bomb;
 
     void Start()
     {
@@ -32,12 +38,13 @@ public class MovPersonaje : MonoBehaviour
         salir.gameObject.SetActive(false);
         reset.gameObject.SetActive(false);
         StartCoroutine("VerificaDaño");
+        explosion.Stop();
     }
 
+    int cont;
     void Update()
     {
-        int cont = (int)Time.timeSinceLevelLoad;
-        print(cont);
+        cont = (int)Time.timeSinceLevelLoad;
         if (Input.GetKey(KeyCode.A))
         {
 
@@ -100,9 +107,18 @@ public class MovPersonaje : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Disparar();
+            amuIn = Instantiate(amuPre, gameObject.transform);
+            amuIn.transform.position = transform.position;
+            amuIn.transform.eulerAngles = new Vector3(90, 0, 0);
+            amuIn.transform.localScale = new Vector3(1, 1, 1);
+            amuIn.transform.parent = null;
+            amuIn.name = "amu";
+            tiro.Play();
+            Destroy(amuIn, 1.2f);
+            Reproductor.clip = sonDisparo;
+            Reproductor.Play();
         }
-        else
+        else if(Input.GetKeyUp(KeyCode.Space))
         {
             tiro.Stop();
         }
@@ -110,18 +126,10 @@ public class MovPersonaje : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch toque = Input.GetTouch(0);
+
             if (toque.phase == TouchPhase.Began)
             {
-                //firstPressPos = new Vector2(toque.position.x, toque.position.y);
                 firstPressPos = toque.position;
-            }
-            if (toque.phase == TouchPhase.Ended)
-            {
-                //secondPressPos = new Vector2(toque.position.x, toque.position.y);
-                
-
-                //currentSwipe = new Vector2(secondPressPos.x - firstPressPos.x, secondPressPos.y - firstPressPos.y);
-                
             }
 
             if (toque.phase == TouchPhase.Moved)
@@ -129,79 +137,52 @@ public class MovPersonaje : MonoBehaviour
                 secondPressPos = toque.position;
                 currentSwipe = secondPressPos - firstPressPos;
                 currentSwipe.Normalize();
+
                 float movHoriz = 0;
                 float movVert = 0;
+
+                movHoriz = currentSwipe.x;
+                movVert = currentSwipe.y;
+
+                gameObject.transform.position += new Vector3(movHoriz * (Time.deltaTime + .2f), 0, movVert * (Time.deltaTime + .2f));
+
+
+                if (transform.position.x > 10)
+                {
+                    movHoriz = 0;
+                    transform.position = new Vector3(10, transform.position.y, transform.position.z);
+                }
+
                 if (transform.position.x < -10)
                 {
                     movHoriz = 0;
                     transform.position = new Vector3(-10, transform.position.y, transform.position.z);
                 }
-                else if (transform.position.x > 11)
+
+                if (transform.position.z < -6)
                 {
-                    movHoriz = 0;
-                    transform.position = new Vector3(11, transform.position.y, transform.position.z);
+                    movVert = 0;
+                    transform.position = new Vector3(transform.position.x, transform.position.y, -6);
                 }
-                else
-                {
-                    movHoriz = currentSwipe.x;
-                }
-                //if (transform.position.x > 11)
-                //{
-                //    movHoriz = 0;
-                //    transform.position = new Vector3(11, transform.position.y, transform.position.z);
-                //}
-                //else
-                //{
-                //    movHoriz = currentSwipe.x;
-                //}
 
                 if (transform.position.z > 5)
                 {
                     movVert = 0;
                     transform.position = new Vector3(transform.position.x, transform.position.y, 5);
                 }
-                else if (transform.position.z < -6)
-                {
-                    movVert = 0;
-                    transform.position = new Vector3(transform.position.x, transform.position.y, -6);
-                }
-                else
-                {
-                    movVert = currentSwipe.y;
-                }
-                //if (transform.position.z < -6)
-                //{
-                //    movVert = 0;
-                //    transform.position = new Vector3(transform.position.x, transform.position.y, -6);
-                //}
-                //else
-                //{
-                //    movVert = currentSwipe.y;
-                //}
-                gameObject.transform.position += new Vector3(movHoriz * (Time.deltaTime + .2f), 0, movVert * (Time.deltaTime + .2f));
+
                 
-                //if (firstPressPos.magnitude > secondPressPos.magnitude)
-                //{
-                //    gameObject.transform.position += new Vector3(currentSwipe.x, 0, currentSwipe.y);
-                //}
-                //else if (secondPressPos.magnitude > firstPressPos.magnitude)
-                //{
-                //    gameObject.transform.position += new Vector3(currentSwipe.x, 0, currentSwipe.y);
-                //}
             }
-            if (toque.phase == TouchPhase.Stationary && cont % 2 == 0)
-            {
-                Disparar();
-            }
+
+            
         }
-        
     }
 
     Vector2 firstPressPos;
     Vector2 secondPressPos;
     Vector2 currentSwipe;
 
-    void Disparar()
+    public void Disparar()
     {
         amuIn = Instantiate(amuPre, gameObject.transform);
         amuIn.transform.position = transform.position;
@@ -209,23 +190,45 @@ public class MovPersonaje : MonoBehaviour
         amuIn.transform.localScale = new Vector3(1, 1, 1);
         amuIn.transform.parent = null;
         amuIn.name = "amu";
-        tiro.Play();
         Destroy(amuIn, 1.2f);
         Reproductor.clip = sonDisparo;
         Reproductor.Play();
+        tiro.Play();
+    }
+
+    public void Bomb()
+    {
+        bomb = Instantiate(bombPre, gameObject.transform);
+        bomb.transform.position = transform.position;
+        bomb.transform.eulerAngles = new Vector3(90, 0, 0);
+        bomb.transform.localScale = new Vector3(2.5f, 2, 2.5f);
+        bomb.transform.parent = null;
+        bomb.name = "bomb";
+        Destroy(bomb, 1.2f);
+        Reproductor.clip = sonDisparo;
+        Reproductor.Play();
+        tiro.Play();
+    }
+
+    public void Chispaso()
+    {
+        tiro.Stop();
     }
 
     private void OnCollisionEnter(Collision coll)
     {
-        if (coll.gameObject.GetComponent<Enemigo0>() || coll.gameObject.GetComponent<Enemigo1>() || coll.gameObject.GetComponent<Enemigo2>())
+        if (coll.gameObject.GetComponent<Enemigo0>() || coll.gameObject.GetComponent<Enemigo1>() || coll.gameObject.GetComponent<Enemigo2>() || coll.gameObject.GetComponent<Boss>() || coll.gameObject.GetComponent<DisparoBoss>())
         {
-            Destroy(gameObject);
+            Destroy(gameObject, 0.7f);
             Destroy(coll.gameObject);
+            explosion.Play();
+            Reproductor.clip = sonExplosion;
+            Reproductor.Play();
             mensLose.SetActive(true);
             salir.gameObject.SetActive(true);
             reset.gameObject.SetActive(true);
         }
-        else if (coll.gameObject.GetComponent<AmuEnemy>())
+        else if (coll.gameObject.GetComponent<AmuEnemy>() && vidaMenos == false)
         {
             sangre -= 5;
             blood.fillAmount -= 0.05f;
@@ -245,6 +248,10 @@ public class MovPersonaje : MonoBehaviour
                     reset.gameObject.SetActive(true);
                 }
             }
+        }
+        else
+        {
+            explosion.Stop();
         }
     }
 
